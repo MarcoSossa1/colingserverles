@@ -4,6 +4,7 @@ using Coling.API.Afiliados;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Coling.API.Afiliados.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240313154150_ClaseDireccion")]
+    partial class ClaseDireccion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,7 +46,7 @@ namespace Coling.API.Afiliados.Migrations
 
                     b.HasIndex("IdPersona");
 
-                    b.ToTable("Direcciones");
+                    b.ToTable("Direccion");
                 });
 
             modelBuilder.Entity("Coling.Shared.Persona", b =>
