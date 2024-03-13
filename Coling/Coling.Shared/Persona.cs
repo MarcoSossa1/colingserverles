@@ -19,5 +19,6 @@ namespace Coling.Shared
         public List<Direccion> Direcciones { get; set; }
         public List<Telefono> Telefonos { get; set; }
         public List<PersonaTipoSocial> PersonaTipoSocial { get; set; }
+        public List<Afiliado> Afiliados { get; set; }
     }
 }
