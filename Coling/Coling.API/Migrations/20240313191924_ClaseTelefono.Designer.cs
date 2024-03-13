@@ -4,6 +4,7 @@ using Coling.API.Afiliados;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Coling.API.Afiliados.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240313191924_ClaseTelefono")]
+    partial class ClaseTelefono
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -74,32 +77,6 @@ namespace Coling.API.Afiliados.Migrations
                     b.ToTable("Personas");
                 });
 
-            modelBuilder.Entity("Coling.Shared.PersonaTipoSocial", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Estado")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("IdPersona")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdTipoSocial")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdPersona");
-
-                    b.HasIndex("IdTipoSocial");
-
-                    b.ToTable("PersonasTiposSociales");
-                });
-
             modelBuilder.Entity("Coling.Shared.Telefono", b =>
                 {
                     b.Property<int>("Id")
@@ -124,25 +101,6 @@ namespace Coling.API.Afiliados.Migrations
                     b.ToTable("Telefonos");
                 });
 
-            modelBuilder.Entity("Coling.Shared.TipoSocial", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Estado")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NombreSocial")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TiposSociales");
-                });
-
             modelBuilder.Entity("Coling.Shared.Direccion", b =>
                 {
                     b.HasOne("Coling.Shared.Persona", "Persona")
@@ -154,29 +112,10 @@ namespace Coling.API.Afiliados.Migrations
                     b.Navigation("Persona");
                 });
 
-            modelBuilder.Entity("Coling.Shared.PersonaTipoSocial", b =>
-                {
-                    b.HasOne("Coling.Shared.Persona", "Persona")
-                        .WithMany("PersonaTipoSocial")
-                        .HasForeignKey("IdPersona")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Coling.Shared.TipoSocial", "TipoSocial")
-                        .WithMany("PersonaTipoSocial")
-                        .HasForeignKey("IdTipoSocial")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Persona");
-
-                    b.Navigation("TipoSocial");
-                });
-
             modelBuilder.Entity("Coling.Shared.Telefono", b =>
                 {
                     b.HasOne("Coling.Shared.Persona", "Persona")
-                        .WithMany("Telefonos")
+                        .WithMany()
                         .HasForeignKey("IdPersona")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -187,15 +126,6 @@ namespace Coling.API.Afiliados.Migrations
             modelBuilder.Entity("Coling.Shared.Persona", b =>
                 {
                     b.Navigation("Direcciones");
-
-                    b.Navigation("PersonaTipoSocial");
-
-                    b.Navigation("Telefonos");
-                });
-
-            modelBuilder.Entity("Coling.Shared.TipoSocial", b =>
-                {
-                    b.Navigation("PersonaTipoSocial");
                 });
 #pragma warning restore 612, 618
         }
