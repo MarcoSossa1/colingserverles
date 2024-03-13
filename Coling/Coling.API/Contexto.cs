@@ -16,5 +16,6 @@ namespace Coling.API.Afiliados
             
         }
         public virtual DbSet<Persona> Personas { get; set; }
+        public virtual DbSet<Direccion> Direcciones { get; set; }
     }
 }

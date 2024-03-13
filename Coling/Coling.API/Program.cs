@@ -19,9 +19,12 @@ var host = new HostBuilder()
            .Build();
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
+
         services.AddDbContext<Contexto>(options => options.UseSqlServer(
-                     configuration.GetConnectionString("cadenaConexion")));
+                     configuration.GetConnectionString("cadenaConexion")), ServiceLifetime.Scoped);
+
         services.AddScoped<IPersonaLogic, PersonaLogic>();
+        services.AddScoped<IDireccionLogic, DireccionLogic>();
 
     })
     .Build();
