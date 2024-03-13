@@ -4,6 +4,7 @@ using Coling.API.Afiliados;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Coling.API.Afiliados.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240313201604_ClaseTipoSocial")]
+    partial class ClaseTipoSocial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,7 +100,7 @@ namespace Coling.API.Afiliados.Migrations
 
                     b.HasIndex("IdTipoSocial");
 
-                    b.ToTable("PersonasTiposSociales");
+                    b.ToTable("PersonaTipoSocial");
                 });
 
             modelBuilder.Entity("Coling.Shared.Telefono", b =>

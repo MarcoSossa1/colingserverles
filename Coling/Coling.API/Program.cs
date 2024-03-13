@@ -25,6 +25,9 @@ var host = new HostBuilder()
 
         services.AddScoped<IPersonaLogic, PersonaLogic>();
         services.AddScoped<IDireccionLogic, DireccionLogic>();
+        services.AddScoped<ITelefonoLogic, TelefonoLogic>();
+        services.AddScoped<ITipoSocialLogic, TipoSocialLogic>();
+        services.AddScoped<IPersonaTipoSocialLogic, PersonaTipoSocialLogic>();
 
     })
     .Build();
