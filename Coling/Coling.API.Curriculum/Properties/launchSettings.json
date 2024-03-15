@@ -3,7 +3,9 @@
     "Coling.API.Curriculum": {
       "commandName": "Project",
       "commandLineArgs": "--port 7023",
-      "launchBrowser": false
+      "environmentVariables": {
+        "cadenaconexion": "DefaultEndpointsProtocol=https;AccountName=colingbdmsz;AccountKey=S2xF+Lnobpe1LAexkvKmy5OWN3d5L0xNped1C9syAflTjV33FVJg+hPtBTQoJPMUvVSUJp/zB3nP+AStEVUb+A==;EndpointSuffix=core.windows.net"
+      }
     }
   }
 }
