@@ -3,6 +3,8 @@ using Coling.API.Afiliados.Contratos;
 using Coling.API.Afiliados.Implementacion;
 using Coling.Utilitarios.Middlewares;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Server.Kestrel;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -33,10 +35,13 @@ var host = new HostBuilder()
         services.AddScoped<IIdiomaLogic,IdiomaLogic>();
         services.AddScoped<IAfiliadoIdiomaLogic, AfiliadoIdiomaLogic>();
         services.AddSingleton<JwtMiddleware>();
-
+        services.Configure<KestrelServerOptions>(options =>
+        {
+            options.AllowSynchronousIO = true;
+        });
     }).ConfigureFunctionsWebApplication(x =>
     {
-        x.UseMiddleware<JwtMiddleware>();
+        
     })
     .Build();
 
