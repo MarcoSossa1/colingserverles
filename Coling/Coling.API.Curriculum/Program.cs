@@ -1,4 +1,3 @@
-
 using Coling.API.Curriculum.Contratos.Repositorio;
 using Coling.API.Curriculum.Implementacion.Repositorio;
 using Microsoft.Azure.Functions.Worker;
