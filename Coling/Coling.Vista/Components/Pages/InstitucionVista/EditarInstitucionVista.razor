@@ -7,7 +7,7 @@
 
 @if (institucion != null)
 {
-    <EditForm EditContext="contextoEdicion" OnValidSubmit="Editar">
+    <EditForm EditContext="contextoEdicion">
         <DataAnnotationsValidator />
         <div class="mb-3">
             <label>Nombre:</label>
@@ -42,8 +42,8 @@
             </div>
         </div>
 
-        <button class="btn btn-primary" type="submit">Editar</button>
-        <button class="btn btn-primary" @onclick="Cancelar">Cancelar</button>
+        <button class="btn btn-primary"@onclick="Editar">Editar</button>
+        <button class="btn btn-primary" @onclick="CancelarEdicion">Cancelar</button> <!-- Modificado -->
     </EditForm>
 }
 else
@@ -60,11 +60,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // Obtener la institución por su RowKey
         string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY"; // Asegúrate de tener un token válido
         institucion = await servicioInstitucion.ObtenerInstitucionPorRowKey(rowKey, token);
-
-        // Crear el EditContext si la institución se cargó correctamente
         if (institucion != null)
         {
             contextoEdicion = new EditContext(institucion);
@@ -73,25 +70,34 @@ else
 
     private async Task Editar()
     {
-        // Lógica para editar la institución
         string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY"; // Asegúrate de tener un token válido
         bool exito = await servicioInstitucion.EditarInstitucion(institucion, token);
 
         if (exito)
         {
-            // Redirigir a la lista de instituciones después de editar
             nav.NavigateTo("/instituciones");
         }
         else
         {
-            // Mostrar un mensaje de error si la edición falla
             await sweetAlertService.FireAsync("Error", "No se pudo editar la institución", SweetAlertIcon.Error);
         }
     }
 
-    private void Cancelar()
+    private async Task CancelarEdicion()
     {
-        // Redirigir a la lista de instituciones si se cancela la edición
-        nav.NavigateTo("/instituciones");
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de cancelar la edición? Los cambios no guardados se perderán.",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Sí"
+            });
+
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            nav.NavigateTo("/instituciones", forceLoad: true);
+        }
     }
 }

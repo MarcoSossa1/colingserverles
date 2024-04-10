@@ -1,8 +1,11 @@
-﻿@inject SweetAlertService sweet 
+﻿@page "/institucion/crear"
+@inject IInstitucionService servicioInstitucion
+@inject NavigationManager nav
+@inject SweetAlertService sweetAlertService
 
-@* <NavigationLock OnBeforeInternalNavigation="AntesDeNavegarInternamente" /> *@
+<h3>Crear Institucion</h3>
 
-<EditForm EditContext="contextoEdicion" OnValidSubmit="OnValidSubmit">
+<EditForm EditContext="contextoEdicion" >
     <DataAnnotationsValidator />
     <div class="mb-3">
         <label>Nombre:</label>
@@ -27,56 +30,50 @@
             <ValidationMessage For="@(() => institucion.Direccion)" />
         </div>
     </div>
-    <button class="btn btn-primary" type="submit">Guardar</button>
-    <button class="btn btn-primary" @onclick="Cancelar">Cancelar</button>
-
+    <button class="btn btn-primary" @onclick="CrearInstitucion">Guardar</button>
+    <button class="btn btn-primary" @onclick="CancelarEdicion">Cancelar</button>
 </EditForm>
 
 @code {
-    private EditContext contextoEdicion = null!;
-
-    [Parameter]
-    [EditorRequired]
-    public Institucion institucion { get; set; } = null;
-
-    [Parameter]
-    [EditorRequired]
-    public EventCallback OnValidSubmit { get; set; }
-
-    [Parameter]
-    [EditorRequired]
-    public EventCallback Cancelar { get; set; }
-
-    public bool formularioPostOk { get; set; }
+    private EditContext contextoEdicion;
+    private Institucion institucion = new();
 
     protected override void OnInitialized()
     {
-        contextoEdicion = new(institucion);
+        contextoEdicion = new EditContext(institucion);
     }
 
-    private async Task AntesDeNavegarInternamente(LocationChangingContext contexto)
+    private async Task CrearInstitucion()
     {
-        var formularioModificado = contextoEdicion.IsModified();
-
-        if(!formularioModificado || formularioPostOk)
+        if (contextoEdicion.Validate())
         {
-            return;
-        }
-
-        var result = await sweet.FireAsync(new SweetAlertOptions
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+            institucion.PartitionKey = "Educacion";
+            institucion.Estado = "Activo";
+            var respuesta = await servicioInstitucion.InsertarInstitucion(institucion, token);
+            if (!respuesta)
             {
-                Title = "Confirmacion",
-                Text = "Desea abandonar esta pantalla? Perdera los cambios",
+                await sweetAlertService.FireAsync("Error", "No se pudo guardar", SweetAlertIcon.Error);
+                return;
+            }
+            nav.NavigateTo("/instituciones", forceLoad: true);
+        }
+    }
+    private async Task CancelarEdicion()
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de cancelar la creación de la institución? Los cambios no guardados se perderán.",
                 Icon = SweetAlertIcon.Warning,
                 ShowCancelButton = true,
                 CancelButtonText = "No",
-                ConfirmButtonText = "Si"
+                ConfirmButtonText = "Sí"
             });
 
-        var confirm = !string.IsNullOrEmpty(result.Value);
-        if (confirm)
-            return;
-
-            contexto.PreventNavigation();
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            nav.NavigateTo("/instituciones", forceLoad: true);
+        }
     }
 }
