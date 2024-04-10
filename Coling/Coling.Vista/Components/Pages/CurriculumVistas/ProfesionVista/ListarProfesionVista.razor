@@ -1,0 +1,88 @@
+﻿@page "/profesiones"
+@inject IProfesionService profesionService
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Listar Profesiones</h3>
+
+<div class="form-group row">
+    <div class="col-sm-10">
+        <a href="/profesiones/crear" class="btn btn-primary m-1">Agregar Nuevo</a>
+    </div>
+</div>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th><strong>Nombre Profesión</strong></th>
+                <th><strong>Grado</strong></th>
+                <th><strong>Estado</strong></th>
+                <th><strong>Acciones</strong></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var profesion in ProfesionesLista)
+            {
+                <tr>
+                    <td>@profesion.NombreProfesion</td>
+                    <td>@profesion.Grado</td>
+                    <td>@profesion.Estado</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="()=>EditarProfesion(profesion.RowKey)">Editar</button>
+                        <button class="btn btn-danger" @onclick="() => ConfirmarBorrarProfesion(profesion.PartitionKey, profesion.RowKey)">Borrar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    public List<Profesion> ProfesionesLista { get; set; } = new List<Profesion>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        var response = await profesionService.ListaProfesiones(token);
+        ProfesionesLista = response;
+    }
+
+    private void EditarProfesion(string rowKey)
+    {
+        navigationManager.NavigateTo($"/profesiones/editar/{rowKey}");
+    }
+
+    private async Task ConfirmarBorrarProfesion(string partitionKey, string rowKey)
+    {
+        var resultado = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "¿Estás seguro de borrar esta profesión?",
+                Text = "Esta acción no se puede deshacer",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Sí, borrar",
+                CancelButtonText = "Cancelar"
+            });
+
+        if (resultado.IsConfirmed)
+        {
+            await BorrarProfesion(partitionKey, rowKey);
+        }
+    }
+
+    private async Task BorrarProfesion(string partitionKey, string rowKey)
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY"; // Obtén el token de autenticación de alguna manera
+        var exito = await profesionService.BorrarProfesion(partitionKey, rowKey, token);
+
+        if (exito)
+        {
+            navigationManager.NavigateTo("/profesiones", forceLoad: true);
+        }
+        else
+        {
+            await sweetAlertService.FireAsync("Error", "No se pudo borrar la profesión", SweetAlertIcon.Error);
+        }
+    }
+}

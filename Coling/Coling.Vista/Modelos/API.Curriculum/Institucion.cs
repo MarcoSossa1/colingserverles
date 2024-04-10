@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Coling.Vista.Modelos
+namespace Coling.Vista.Modelos.API.Curriculum
 {
     public class Institucion : IInstitucion
     {

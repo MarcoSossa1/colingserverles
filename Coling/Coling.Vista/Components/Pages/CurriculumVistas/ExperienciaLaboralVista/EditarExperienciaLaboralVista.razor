@@ -1,0 +1,136 @@
+﻿@page "/experiencialaboral/editar/{rowKey}"
+
+@inject IExperienciaLaboralService servicioExperienciaLaboral
+@inject IInstitucionService servicioInstitucion
+@inject NavigationManager nav
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Experiencia Laboral</h3>
+
+@if (experienciaLaboral != null)
+{
+    <EditForm EditContext="contextoEdicion">
+        <DataAnnotationsValidator />
+        <div class="mb-3">
+            <label>Afiliado:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@experienciaLaboral.Afiliado" />
+                <ValidationMessage For="@(() => experienciaLaboral.Afiliado)" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Institución:</label>
+            <div>
+                <select class="form-control" @bind="@experienciaLaboral.Institucion">
+                    @foreach (var institucion in Instituciones.Where(i => i.Estado == "Activo"))
+                    {
+                        <option value="@institucion.Nombre">@institucion.Nombre</option>
+                    }
+                </select>
+                <ValidationMessage For="@(() => experienciaLaboral.Institucion)" />
+            </div>
+        </div>
+
+
+        <div class="mb-3">
+            <label>Cargo o Título:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@experienciaLaboral.CargoTitulo" />
+                <ValidationMessage For="@(() => experienciaLaboral.CargoTitulo)" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Fecha de Inicio:</label>
+            <div>
+                <InputDate class="form-control" @bind-Value="@experienciaLaboral.FechaInicio" />
+                <ValidationMessage For="@(() => experienciaLaboral.FechaInicio)" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Fecha Final:</label>
+            <div>
+                <InputDate class="form-control" @bind-Value="@experienciaLaboral.FechaFinal" />
+                <ValidationMessage For="@(() => experienciaLaboral.FechaFinal)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Estado:</label>
+            <div>
+                <select class="form-control" @bind="@experienciaLaboral.Estado">
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" @onclick="EditarExperienciaLaboral">Editar</button>
+        <button class="btn btn-primary" @onclick="CancelarEdicion">Cancelar</button> <!-- Modificado -->
+    </EditForm>
+}
+else
+{
+    <p>Cargando...</p>
+}
+
+@code {
+    private EditContext contextoEdicion;
+    private ExperienciaLaboral experienciaLaboral;
+
+    [Parameter]
+    public string rowKey { get; set; }
+
+    private List<Institucion> Instituciones { get; set; } = new List<Institucion>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        // Cargar lista de instituciones activas
+        var respuestaInstituciones = await servicioInstitucion.ListaInstituciones(token);
+        Instituciones = respuestaInstituciones.Where(i => i.Estado == "Activo").ToList();
+
+        // Obtener datos de la experiencia laboral a editar
+        experienciaLaboral = await servicioExperienciaLaboral.ObtenerExperienciaLaboralPorRowKey(rowKey, token);
+        if (experienciaLaboral != null)
+        {
+            contextoEdicion = new EditContext(experienciaLaboral);
+        }
+    }
+
+    private async Task EditarExperienciaLaboral()
+    {
+        if (contextoEdicion.Validate())
+        {
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY"; // Reemplaza con tu token válido
+            bool exito = await servicioExperienciaLaboral.EditarExperienciaLaboral(experienciaLaboral, token);
+
+            if (exito)
+            {
+                nav.NavigateTo("/experiencialaboral");
+            }
+            else
+            {
+                await sweetAlertService.FireAsync("Error", "No se pudo editar la experiencia laboral", SweetAlertIcon.Error);
+            }
+        }
+    }
+
+    private async Task CancelarEdicion()
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de cancelar la edición? Los cambios no guardados se perderán.",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Sí"
+            });
+
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            nav.NavigateTo("/experiencialaboral", forceLoad: true);
+        }
+    }
+}

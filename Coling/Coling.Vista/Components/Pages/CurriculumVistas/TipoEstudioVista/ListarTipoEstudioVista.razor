@@ -1,0 +1,86 @@
+﻿@page "/tipoestudios"
+@inject ITipoEstudioService tipoEstudioService
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Listar Tipos de Estudio</h3>
+
+<div class="form-group row">
+    <div class="col-sm-10">
+        <a href="/tipoestudios/crear" class="btn btn-primary m-1">Agregar Nuevo</a>
+    </div>
+</div>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th><strong>Nombre</strong></th>
+                <th><strong>Estado</strong></th>
+                <th><strong>Acciones</strong></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tipoEstudio in TiposEstudioLista)
+            {
+                <tr>
+                    <td>@tipoEstudio.Nombre</td>
+                    <td>@tipoEstudio.Estado</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="()=>EditarTipoEstudio(tipoEstudio.RowKey)">Editar</button>
+                        <button class="btn btn-danger" @onclick="() => ConfirmarBorrarTipoEstudio(tipoEstudio.PartitionKey, tipoEstudio.RowKey)">Borrar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    public List<TipoEstudio> TiposEstudioLista { get; set; } = new List<TipoEstudio>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        var response = await tipoEstudioService.ListaTiposEstudio(token);
+        TiposEstudioLista = response;
+    }
+
+    private void EditarTipoEstudio(string rowKey)
+    {
+        navigationManager.NavigateTo($"/tipoestudios/editar/{rowKey}");
+    }
+
+    private async Task ConfirmarBorrarTipoEstudio(string partitionKey, string rowKey)
+    {
+        var resultado = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "¿Estás seguro de borrar este tipo de estudio?",
+                Text = "Esta acción no se puede deshacer",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Sí, borrar",
+                CancelButtonText = "Cancelar"
+            });
+
+        if (resultado.IsConfirmed)
+        {
+            await BorrarTipoEstudio(partitionKey, rowKey);
+        }
+    }
+
+    private async Task BorrarTipoEstudio(string partitionKey, string rowKey)
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY"; // Obtén el token de autenticación de alguna manera
+        var exito = await tipoEstudioService.BorrarTipoEstudio(partitionKey, rowKey, token);
+
+        if (exito)
+        {
+            navigationManager.NavigateTo("/tipoestudios", forceLoad: true);
+        }
+        else
+        {
+            await sweetAlertService.FireAsync("Error", "No se pudo borrar el tipo de estudio", SweetAlertIcon.Error);
+        }
+    }
+}

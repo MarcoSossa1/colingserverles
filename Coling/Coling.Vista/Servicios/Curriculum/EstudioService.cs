@@ -1,40 +1,41 @@
-﻿using System;
+﻿
+using Coling.Vista.Modelos.API.Curriculum;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
-using Coling.Vista.Modelos.API.Curriculum;
-using Newtonsoft.Json;
-
 namespace Coling.Vista.Servicios.Curriculum
 {
-    public class InstitucionService : IInstitucionService
+    public class EstudioService : IEstudioService
     {
         private readonly HttpClient _httpClient;
         private const string BaseUrl = "http://localhost:7023";
 
-        public InstitucionService(HttpClient httpClient)
+        public EstudioService(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _httpClient.BaseAddress = new Uri(BaseUrl);
         }
-        public async Task<List<Institucion>> ListaInstituciones(string token)
+
+        public async Task<List<Estudio>> ListaEstudios(string token)
         {
-            var endPoint = "api/ListarInstitucion";
+            var endPoint = "api/ListarEstudios";
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             var response = await _httpClient.GetAsync(endPoint);
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<Institucion>>();
+            return await response.Content.ReadFromJsonAsync<List<Estudio>>();
         }
-        public async Task<bool> InsertarInstitucion(Institucion institucion, string token)
+
+        public async Task<bool> InsertarEstudio(Estudio estudio, string token)
         {
-            var endPoint = "api/InsertarInstitucion";
-            string jsonBody = JsonConvert.SerializeObject(institucion);
+            var endPoint = "api/InsertarEstudio";
+            string jsonBody = JsonConvert.SerializeObject(estudio);
 
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
@@ -42,10 +43,11 @@ namespace Coling.Vista.Servicios.Curriculum
             var response = await _httpClient.PostAsync(endPoint, content);
             return response.IsSuccessStatusCode;
         }
-        public async Task<bool> EditarInstitucion(Institucion institucion, string token)
+
+        public async Task<bool> EditarEstudio(Estudio estudio, string token)
         {
-            var endPoint = $"api/EditarInstitucion/{institucion.RowKey}";
-            string jsonBody = JsonConvert.SerializeObject(institucion);
+            var endPoint = $"api/EditarEstudio/{estudio.RowKey}";
+            string jsonBody = JsonConvert.SerializeObject(estudio);
 
             try
             {
@@ -57,13 +59,14 @@ namespace Coling.Vista.Servicios.Curriculum
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al editar la institución: {ex.Message}");
+                Console.WriteLine($"Error al editar el estudio: {ex.Message}");
                 return false;
             }
         }
-        public async Task<Institucion> ObtenerInstitucionPorRowKey(string rowKey, string token)
+
+        public async Task<Estudio> ObtenerEstudioPorRowKey(string rowKey, string token)
         {
-            var endPoint = $"api/ListarInstitucionById/{rowKey}";
+            var endPoint = $"api/ListarEstudioById/{rowKey}";
 
             try
             {
@@ -72,25 +75,26 @@ namespace Coling.Vista.Servicios.Curriculum
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<Institucion>();
+                    return await response.Content.ReadFromJsonAsync<Estudio>();
                 }
                 else
                 {
-                    Console.WriteLine($"Error al obtener la institución. Código de estado: {response.StatusCode}");
+                    Console.WriteLine($"Error al obtener el estudio. Código de estado: {response.StatusCode}");
                     return null;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al obtener la institución: {ex.Message}");
+                Console.WriteLine($"Error al obtener el estudio: {ex.Message}");
                 return null;
             }
         }
-        public async Task<bool> BorrarInstitucion(string partitionKey, string rowKey, string token)
+
+        public async Task<bool> BorrarEstudio(string partitionKey, string rowKey, string token)
         {
             try
             {
-                string endPoint = $"{BaseUrl}/api/BorrarInstitucion/{partitionKey}/{rowKey}";
+                string endPoint = $"{BaseUrl}/api/BorrarEstudio/{partitionKey}/{rowKey}";
                 _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
                 HttpResponseMessage respuesta = await _httpClient.DeleteAsync(endPoint);
@@ -101,16 +105,15 @@ namespace Coling.Vista.Servicios.Curriculum
                 }
                 else
                 {
-                    Console.WriteLine($"Error al borrar la institución. Código de estado: {respuesta.StatusCode}");
+                    Console.WriteLine($"Error al borrar el estudio. Código de estado: {respuesta.StatusCode}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al borrar la institución: {ex.Message}");
+                Console.WriteLine($"Error al borrar el estudio: {ex.Message}");
                 return false;
             }
         }
-
     }
 }
