@@ -1,4 +1,4 @@
-﻿using Coling.Vista.Modelos;
+﻿using Coling.Vista.Modelos.API.Curriculum;
 using System;
 using System.Collections.Generic;
 using System.Linq;

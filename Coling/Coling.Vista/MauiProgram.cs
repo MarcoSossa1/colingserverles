@@ -21,9 +21,14 @@ namespace Coling.Vista
             builder.Services.AddHttpClient();
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddScoped<IPersonaService, PersonaService>();
+            builder.Services.AddScoped<IEstudioService, EstudioService>();
+            builder.Services.AddScoped<IExperienciaLaboralService, ExperienciaLaboralService>();
+            builder.Services.AddScoped<IGradoAcademicoService, GradoAcademicoService>();
             builder.Services.AddScoped<IInstitucionService, InstitucionService>();
+            builder.Services.AddScoped<IProfesionService, ProfesionService>();
+            builder.Services.AddScoped<ITipoEstudioService, TipoEstudioService>();
 #if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
 

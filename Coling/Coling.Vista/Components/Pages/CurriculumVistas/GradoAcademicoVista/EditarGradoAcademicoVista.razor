@@ -1,0 +1,91 @@
+﻿@page "/gradosAcademicos/editar/{rowKey}"
+
+@inject IGradoAcademicoService servicioGradoAcademico
+@inject NavigationManager nav
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Grado Académico</h3>
+
+@if (grado != null)
+{
+    <EditForm EditContext="contextoEdicion">
+        <DataAnnotationsValidator />
+        <div class="mb-3">
+            <label>Nombre del Grado:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@grado.NombreGrado" />
+                <ValidationMessage For="@(() => grado.NombreGrado)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Estado:</label>
+            <div>
+                <select class="form-control" @bind="@grado.Estado">
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" @onclick="EditarGradoAcademico">Editar</button>
+        <button class="btn btn-primary" @onclick="CancelarEdicion">Cancelar</button> <!-- Modificado -->
+    </EditForm>
+}
+else
+{
+    <p>Cargando...</p>
+}
+
+@code {
+    private EditContext contextoEdicion;
+    private GradoAcademico grado;
+
+    [Parameter]
+    public string rowKey { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        // Obtener datos del grado académico a editar
+        grado = await servicioGradoAcademico.ObtenerGradoAcademicoPorRowKey(rowKey, token);
+        if (grado != null)
+        {
+            contextoEdicion = new EditContext(grado);
+        }
+    }
+
+    private async Task EditarGradoAcademico()
+    {
+        if (contextoEdicion.Validate())
+        {
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY"; // Reemplaza con tu token válido
+            bool exito = await servicioGradoAcademico.EditarGradoAcademico(grado, token);
+
+            if (exito)
+            {
+                nav.NavigateTo("/gradosacademicos");
+            }
+            else
+            {
+                await sweetAlertService.FireAsync("Error", "No se pudo editar el grado académico", SweetAlertIcon.Error);
+            }
+        }
+    }
+
+    private async Task CancelarEdicion()
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de cancelar la edición? Los cambios no guardados se perderán.",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Sí"
+            });
+
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            nav.NavigateTo("/gradosacademicos", forceLoad: true);
+        }
+    }
+}

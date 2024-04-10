@@ -8,25 +8,35 @@
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
-        <div class="nav-item px-3">
+        <div class="nav-item px-2">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
+        <div class="nav-item px-2">
+            <div class="accordion" id="menuAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> API Curriculum
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#menuAccordion">
+                        <div class="accordion-body bg-dark">
+                            <ul class="nav flex-column">
+                                <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/instituciones">Instituciones</NavLink></li>
+                                <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/estudios">Estudios</NavLink></li>
+                                <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/experiencialaboral">Experiencia Laboral</NavLink></li>
+                                <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/gradosAcademicos">Grado Académico</NavLink></li>
+                                <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/profesiones">Profesión</NavLink></li>
+                                <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/tipoestudios">Tipo de Estudio</NavLink></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/personas">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Personas
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/instituciones">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Instituciones
-            </NavLink>
-        </div>
+
     </nav>
 </div>
+
