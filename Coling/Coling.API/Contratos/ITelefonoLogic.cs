@@ -14,5 +14,6 @@ namespace Coling.API.Afiliados.Contratos
         Task<bool> EliminarTelefono(int id);
         Task<List<Telefono>> ListarTelefonosPorPersona(int idPersona);
         Task<Telefono> ObtenerTelefonoById(int id);
+        Task<List<Telefono>> ListarTelefonos();
     }
 }

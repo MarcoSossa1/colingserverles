@@ -17,7 +17,7 @@ namespace Coling.Shared
         public int IdAfiliado { get; set; }
         public int? IdOferta { get; set; }
         public string? Nombre { get; set; }
-        public string? FechaPostulacion { get; set; }
+        public DateTime? FechaPostulacion { get; set; }
         public int? PretencionSalarial { get; set; }
         public string? Acercade { get; set; }
         public string? Estado { get; set; }

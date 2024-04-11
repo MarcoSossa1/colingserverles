@@ -69,7 +69,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Servicios\BolsaTrabajo\" />
       <Folder Include="Servicios\Autentificacion\" />
     </ItemGroup>
 

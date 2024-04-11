@@ -50,6 +50,27 @@ namespace Coling.API.Afiliados.Endpoints
                 return error;
             }
         }
+        [Function("ListarDirecciones")]
+        [ColingAuthorize(AplicacionRoles.Admin + "," + AplicacionRoles.Secretaria + "," + AplicacionRoles.Afiliado)]
+        [OpenApiOperation("ListarDirecciones", "ListarDirecciones", Description = "Lista todas las direcciones.")]
+        public async Task<HttpResponseData> ListarDirecciones(
+    [HttpTrigger(AuthorizationLevel.Function, "get", Route = "listardirecciones")] HttpRequestData req)
+        {
+            _logger.LogInformation("Ejecutando azure function para listar todas las direcciones.");
+            try
+            {
+                var listaDirecciones = await direccionLogic.ListarDirecciones();
+                var respuesta = req.CreateResponse(HttpStatusCode.OK);
+                await respuesta.WriteAsJsonAsync(listaDirecciones);
+                return respuesta;
+            }
+            catch (Exception e)
+            {
+                var error = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await error.WriteAsJsonAsync(e.Message);
+                return error;
+            }
+        }
 
         [Function("InsertarDireccion")]
         [ColingAuthorize(AplicacionRoles.Admin)]

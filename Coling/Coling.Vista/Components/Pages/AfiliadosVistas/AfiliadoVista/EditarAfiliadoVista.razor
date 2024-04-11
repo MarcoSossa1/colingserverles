@@ -1,0 +1,109 @@
+﻿@page "/afiliado/editar/{id}"
+@using Coling.Shared
+@inject IAfiliadoService afiliadoService
+@inject IPersonaService personaService
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Afiliado</h3>
+
+@if (afiliado != null)
+{
+    <EditForm EditContext="contextoEdicion">
+        <DataAnnotationsValidator />
+        <div class="mb-3">
+            <label>Fecha de Afiliación:</label>
+            <div>
+                <InputDate class="form-control" @bind-Value="@afiliado.FechaAfiliacion" />
+                <ValidationMessage For="@(() => afiliado.FechaAfiliacion)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Código de Afiliado:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@afiliado.CodigoAfiliado" />
+                <ValidationMessage For="@(() => afiliado.CodigoAfiliado)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Número de Título Provisional:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@afiliado.NroTituloProvisional" />
+                <ValidationMessage For="@(() => afiliado.NroTituloProvisional)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Persona:</label>
+            <div>
+                <InputSelect class="form-control" @bind-Value="@afiliado.IdPersona">
+                    @foreach (var persona in Personas.Where(p => p.Estado == "Activo"))
+                    {
+                        <option value="@persona.Id">@($"{persona.Nombre} {persona.Apellidos}")</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => afiliado.IdPersona)" />
+            </div>
+        </div>
+        <button class="btn btn-primary" @onclick="EditarAfiliado">Guardar</button>
+        <button class="btn btn-primary" @onclick="CancelarEdicion">Cancelar</button>
+    </EditForm>
+}
+else
+{
+    <p>Cargando...</p>
+}
+
+@code {
+    private EditContext contextoEdicion;
+    private Afiliado afiliado;
+    private List<Persona> Personas = new List<Persona>();
+
+    [Parameter]
+    public string id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        if (int.TryParse(id, out int parsedId))
+        {
+            afiliado = await afiliadoService.ObtenerAfiliadoPorId(parsedId, token);
+            if (afiliado != null)
+            {
+                contextoEdicion = new EditContext(afiliado);
+            }
+        }
+        Personas = await personaService.ListaPersonas(token);
+    }
+
+    private async Task EditarAfiliado()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        var exito = await afiliadoService.EditarAfiliado(afiliado, token);
+        if (exito)
+        {
+            navigationManager.NavigateTo("/afiliados");
+        }
+        else
+        {
+            await sweetAlertService.FireAsync("Error", "No se pudo editar el afiliado", SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CancelarEdicion()
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de cancelar la edición del afiliado? Los cambios no guardados se perderán.",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Sí"
+            });
+
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            navigationManager.NavigateTo("/afiliados");
+        }
+    }
+}

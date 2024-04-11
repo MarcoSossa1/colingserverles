@@ -1,0 +1,86 @@
+﻿@page "/persona/crear"
+@using Coling.Shared
+@inject IPersonaService servicioPersona
+@inject NavigationManager nav
+@inject SweetAlertService sweetAlertService
+
+<h3>Crear Persona</h3>
+
+<EditForm EditContext="contextoEdicion">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Nombre:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@persona.Nombre" />
+            <ValidationMessage For="@(() => persona.Nombre)" />
+        </div>
+    </div>
+    <div class="mb-3">
+        <label>Apellidos:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@persona.Apellidos" />
+            <ValidationMessage For="@(() => persona.Apellidos)" />
+        </div>
+    </div>
+    <div class="mb-3">
+        <label>Fecha de Nacimiento:</label>
+        <div>
+            <InputDate class="form-control" @bind-Value="@persona.FechaNacimiento" />
+            <ValidationMessage For="@(() => persona.FechaNacimiento)" />
+        </div>
+    </div>
+    <div class="mb-3">
+        <label>Foto:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@persona.Foto" />
+            <ValidationMessage For="@(() => persona.Foto)" />
+        </div>
+    </div>
+    <button class="btn btn-primary" @onclick="CrearPersona">Guardar</button>
+    <button class="btn btn-primary" @onclick="CancelarEdicion">Cancelar</button>
+</EditForm>
+
+@code {
+    private EditContext contextoEdicion;
+    private Persona persona = new Persona();
+
+    protected override void OnInitialized()
+    {
+        contextoEdicion = new EditContext(persona);
+        persona.FechaNacimiento = DateTime.Today;
+    }
+
+    private async Task CrearPersona()
+    {
+        if (contextoEdicion.Validate())
+        {
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+            persona.Estado = "Activo";
+            var respuesta = await servicioPersona.InsertarPersona(persona, token);
+            if (!respuesta)
+            {
+                await sweetAlertService.FireAsync("Error", "No se pudo guardar", SweetAlertIcon.Error);
+                return;
+            }
+            nav.NavigateTo("/personas", forceLoad: true);
+        }
+    }
+
+    private async Task CancelarEdicion()
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de cancelar la creación de la persona? Los cambios no guardados se perderán.",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Sí"
+            });
+
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            nav.NavigateTo("/personas", forceLoad: true);
+        }
+    }
+}

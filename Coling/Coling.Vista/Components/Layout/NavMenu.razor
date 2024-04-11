@@ -13,6 +13,30 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
+<div class="nav-item px-2">
+    <div class="accordion" id="menuAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="entidadesHeading">
+                <button class="accordion-button bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#entidadesCollapse" aria-expanded="true" aria-controls="entidadesCollapse">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> API Afiliados
+                </button>
+            </h2>
+            <div id="entidadesCollapse" class="accordion-collapse collapse show" aria-labelledby="entidadesHeading" data-bs-parent="#menuAccordion">
+                <div class="accordion-body bg-dark">
+                    <ul class="nav flex-column">
+                        <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/personas">Personas</NavLink></li>
+                        <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/afiliados">Afiliados</NavLink></li>
+                        <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/direcciones">Direcciones</NavLink></li>
+                        <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/telefonos">Telefonos</NavLink></li>
+                        <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/idiomas">Idiomas</NavLink></li>
+                        <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/afiliado-idiomas">Idiomas de Afiliados</NavLink></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
         <div class="nav-item px-2">
             <div class="accordion" id="menuAccordion">
                 <div class="accordion-item">
@@ -30,6 +54,25 @@
                                 <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/gradosAcademicos">Grado Académico</NavLink></li>
                                 <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/profesiones">Profesión</NavLink></li>
                                 <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/tipoestudios">Tipo de Estudio</NavLink></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="nav-item px-2">
+            <div class="accordion" id="menuAccordionNew">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="entidadesHeadingNew">
+                        <button class="accordion-button bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#entidadesCollapseNew" aria-expanded="true" aria-controls="entidadesCollapseNew">
+                            <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> API Afiliados
+                        </button>
+                    </h2>
+                    <div id="entidadesCollapseNew" class="accordion-collapse collapse show" aria-labelledby="entidadesHeadingNew" data-bs-parent="#menuAccordionNew">
+                        <div class="accordion-body bg-dark">
+                            <ul class="nav flex-column">
+                                <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/ofertas-laborales">Ofertas Laborales</NavLink></li>
+                                <li class="nav-item bg-dark"><NavLink class="nav-link text-white" href="/solicitudes">Solicitudes</NavLink></li>
                             </ul>
                         </div>
                     </div>

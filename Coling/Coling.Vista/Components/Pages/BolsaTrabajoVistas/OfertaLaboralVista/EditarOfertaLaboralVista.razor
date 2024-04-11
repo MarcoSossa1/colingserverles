@@ -1,0 +1,149 @@
+﻿@page "/oferta-laboral/editar/{id}"
+@using Coling.Shared
+@inject IOfertaLaboralService ofertaLaboralService
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Oferta Laboral</h3>
+
+@if (ofertaLaboral != null)
+{
+    <EditForm EditContext="contextoEdicion" OnValidSubmit="EditarOfertaLaboral">
+        <DataAnnotationsValidator />
+        <div class="mb-3">
+            <label>Institución:</label>
+            <div>
+                <InputNumber class="form-control" @bind-Value="@ofertaLaboral.IdInstitucion" />
+                <ValidationMessage For="@(() => ofertaLaboral.IdInstitucion)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Fecha de Oferta:</label>
+            <div>
+                <InputDate class="form-control" @bind-Value="@ofertaLaboral.FechaOferta" />
+                <ValidationMessage For="@(() => ofertaLaboral.FechaOferta)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Fecha Límite:</label>
+            <div>
+                <InputDate class="form-control" @bind-Value="@ofertaLaboral.FechaLimite" />
+                <ValidationMessage For="@(() => ofertaLaboral.FechaLimite)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Descripción:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@ofertaLaboral.Descripcion" />
+                <ValidationMessage For="@(() => ofertaLaboral.Descripcion)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Título de Cargo:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@ofertaLaboral.TituloCargo" />
+                <ValidationMessage For="@(() => ofertaLaboral.TituloCargo)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Tipo de Contrato:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@ofertaLaboral.TipoContrato" />
+                <ValidationMessage For="@(() => ofertaLaboral.TipoContrato)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Tipo de Trabajo:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@ofertaLaboral.TipoTrabajo" />
+                <ValidationMessage For="@(() => ofertaLaboral.TipoTrabajo)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Área:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@ofertaLaboral.Area" />
+                <ValidationMessage For="@(() => ofertaLaboral.Area)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Características:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@ofertaLaboral.Caracteristicas" />
+                <ValidationMessage For="@(() => ofertaLaboral.Caracteristicas)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Estado:</label>
+            <div>
+                <select class="form-control" @bind="@ofertaLaboral.Estado">
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button class="btn btn-primary" @onclick="CancelarEdicion">Cancelar</button>
+    </EditForm>
+}
+else
+{
+    <p>Cargando...</p>
+}
+
+@code {
+    private EditContext contextoEdicion;
+    private OfertaLaboral ofertaLaboral;
+
+    [Parameter]
+    public string id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(id))
+        {
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+            ofertaLaboral = await ofertaLaboralService.ObtenerOfertaLaboralPorId(id, token);
+            if (ofertaLaboral != null)
+            {
+                contextoEdicion = new EditContext(ofertaLaboral);
+            }
+        }
+    }
+
+    private async Task EditarOfertaLaboral()
+    {
+        if (contextoEdicion.Validate())
+        {
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+            bool exito = await ofertaLaboralService.EditarOfertaLaboral(ofertaLaboral, token);
+
+            if (exito)
+            {
+                navigationManager.NavigateTo("/ofertas-laborales");
+            }
+            else
+            {
+                await sweetAlertService.FireAsync("Error", "No se pudo editar la oferta laboral", SweetAlertIcon.Error);
+            }
+        }
+    }
+
+    private async Task CancelarEdicion()
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de cancelar la edición? Los cambios no guardados se perderán.",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Sí"
+            });
+
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            navigationManager.NavigateTo("/ofertas-laborales", forceLoad: true);
+        }
+    }
+}

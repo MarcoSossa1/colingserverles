@@ -1,0 +1,80 @@
+﻿@page "/direccion/crear"
+@using Coling.Shared
+@inject IDireccionService direccionService
+@inject IPersonaService personaService
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Crear Dirección</h3>
+
+<EditForm EditContext="contextoEdicion">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Descripción:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@direccion.Descripcion" />
+            <ValidationMessage For="@(() => direccion.Descripcion)" />
+        </div>
+    </div>
+    <div class="mb-3">
+        <label>Id Persona:</label>
+        <div>
+            <InputSelect class="form-control" @bind-Value="@direccion.IdPersona">
+                @foreach (var persona in personas.Where(p => p.Estado == "Activo"))
+                {
+                    <option value="@persona.Id">@persona.Nombre @persona.Apellidos</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => direccion.IdPersona)" />
+        </div>
+    </div>
+    <button class="btn btn-primary" @onclick="CrearDireccion">Guardar</button>
+    <button class="btn btn-primary" @onclick="CancelarEdicion">Cancelar</button>
+</EditForm>
+
+@code {
+    private EditContext contextoEdicion;
+    private Direccion direccion = new Direccion();
+    private List<Persona> personas = new List<Persona>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        contextoEdicion = new EditContext(direccion);
+        personas = await personaService.ListaPersonas(token);
+    }
+
+    private async Task CrearDireccion()
+    {
+        if (contextoEdicion.Validate())
+        {
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+            direccion.Estado = "Activo";
+            var respuesta = await direccionService.InsertarDireccion(direccion, token);
+            if (!respuesta)
+            {
+                await sweetAlertService.FireAsync("Error", "No se pudo guardar la dirección", SweetAlertIcon.Error);
+                return;
+            }
+            navigationManager.NavigateTo("/direcciones", forceLoad: true);
+        }
+    }
+
+    private async Task CancelarEdicion()
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de cancelar la creación de la dirección? Los cambios no guardados se perderán.",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Sí"
+            });
+
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            navigationManager.NavigateTo("/direcciones", forceLoad: true);
+        }
+    }
+}

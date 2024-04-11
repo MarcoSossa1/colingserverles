@@ -1,0 +1,138 @@
+﻿@page "/afiliado-idiomas"
+@using Coling.Shared
+@inject IAfiliadoIdiomaService afiliadoIdiomaService
+@inject IAfiliadoService afiliadoService
+@inject IIdiomaService idiomaService
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Listar Afiliado Idiomas</h3>
+
+<div class="form-group row">
+    <div class="col-sm-10">
+        <a href="/afiliado-idioma/crear" class="btn btn-primary m-1">Agregar Nuevo</a>
+    </div>
+</div>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th><strong>Afiliado</strong></th>
+                <th><strong>Idioma</strong></th>
+                <th><strong>Acciones</strong></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var afiliadoIdioma in AfiliadoIdiomasLista)
+            {
+                <tr>
+                    <td>@ObtenerNombreAfiliado(afiliadoIdioma.IdAfiliado)</td>
+                    <td>@ObtenerNombreIdioma(afiliadoIdioma.IdIdioma)</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="()=>EditarAfiliadoIdioma(afiliadoIdioma.Id)">Editar</button>
+                        <button class="btn btn-danger" @onclick="() => ConfirmarBorrarAfiliadoIdioma(afiliadoIdioma.Id)">Borrar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    public List<AfiliadoIdioma> AfiliadoIdiomasLista { get; set; } = new List<AfiliadoIdioma>();
+    public Dictionary<int, string> NombresAfiliados { get; set; } = new Dictionary<int, string>();
+    public Dictionary<int, string> NombresIdiomas { get; set; } = new Dictionary<int, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+
+        // Obtener la lista de afiliado-idiomas
+        AfiliadoIdiomasLista = await afiliadoIdiomaService.ListaAfiliadoIdiomas(token);
+
+        // Obtener los nombres de los afiliados asociados a los afiliado-idiomas
+        foreach (var afiliadoIdioma in AfiliadoIdiomasLista)
+        {
+            // Verificar si la clave ya existe en el diccionario
+            if (!NombresAfiliados.ContainsKey(afiliadoIdioma.IdAfiliado))
+            {
+                var afiliado = await afiliadoService.ObtenerAfiliadoPorId(afiliadoIdioma.IdAfiliado, token);
+                NombresAfiliados.Add(afiliadoIdioma.IdAfiliado, afiliado != null ? $"{afiliado.CodigoAfiliado}" : "Desconocido");
+            }
+        }
+
+        // Obtener los nombres de los idiomas asociados a los afiliado-idiomas
+        foreach (var afiliadoIdioma in AfiliadoIdiomasLista)
+        {
+            // Verificar si la clave ya existe en el diccionario
+            if (!NombresIdiomas.ContainsKey(afiliadoIdioma.IdIdioma))
+            {
+                var idioma = await idiomaService.ObtenerIdiomaPorId(afiliadoIdioma.IdIdioma, token);
+                NombresIdiomas.Add(afiliadoIdioma.IdIdioma, idioma != null ? idioma.NombreIdioma : "Desconocido");
+            }
+        }
+    }
+
+    private void EditarAfiliadoIdioma(int id)
+    {
+        navigationManager.NavigateTo($"/afiliado-idioma/editar/{id}");
+    }
+
+    private async Task ConfirmarBorrarAfiliadoIdioma(int id)
+    {
+        var resultado = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "¿Estás seguro de borrar este afiliado-idioma?",
+                Text = "Esta acción no se puede deshacer",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Sí, borrar",
+                CancelButtonText = "Cancelar"
+            });
+
+        if (resultado.IsConfirmed)
+        {
+            await BorrarAfiliadoIdioma(id);
+        }
+    }
+
+    private async Task BorrarAfiliadoIdioma(int id)
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        var exito = await afiliadoIdiomaService.BorrarAfiliadoIdioma(id, token);
+
+        if (exito)
+        {
+            navigationManager.NavigateTo("/afiliado-idiomas", forceLoad: true);
+        }
+        else
+        {
+            await sweetAlertService.FireAsync("Error", "No se pudo borrar el afiliado-idioma", SweetAlertIcon.Error);
+        }
+    }
+
+    private string ObtenerNombreAfiliado(int idAfiliado)
+    {
+        if (NombresAfiliados.ContainsKey(idAfiliado))
+        {
+            return NombresAfiliados[idAfiliado];
+        }
+        else
+        {
+            return "Desconocido";
+        }
+    }
+
+    private string ObtenerNombreIdioma(int idIdioma)
+    {
+        if (NombresIdiomas.ContainsKey(idIdioma))
+        {
+            return NombresIdiomas[idIdioma];
+        }
+        else
+        {
+            return "Desconocido";
+        }
+    }
+}

@@ -1,0 +1,80 @@
+﻿@page "/telefono/crear"
+@using Coling.Shared
+@inject ITelefonoService telefonoService
+@inject IPersonaService personaService
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Crear Teléfono</h3>
+
+<EditForm EditContext="contextoEdicion">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Número de Teléfono:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@telefono.NroTelefono" />
+            <ValidationMessage For="@(() => telefono.NroTelefono)" />
+        </div>
+    </div>
+    <div class="mb-3">
+        <label>Persona:</label>
+        <div>
+            <InputSelect class="form-control" @bind-Value="@telefono.IdPersona">
+                @foreach (var persona in personas.Where(p => p.Estado == "Activo"))
+                {
+                    <option value="@persona.Id">@persona.Nombre @persona.Apellidos</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => telefono.IdPersona)" />
+        </div>
+    </div>
+    <button class="btn btn-primary" @onclick="CrearTelefono">Guardar</button>
+    <button class="btn btn-primary" @onclick="CancelarEdicion">Cancelar</button>
+</EditForm>
+
+@code {
+    private EditContext contextoEdicion;
+    private Telefono telefono = new Telefono();
+    private List<Persona> personas = new List<Persona>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        contextoEdicion = new EditContext(telefono);
+        personas = await personaService.ListaPersonas(token);
+    }
+
+    private async Task CrearTelefono()
+    {
+        if (contextoEdicion.Validate())
+        {
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+            telefono.Estado = "Activo";
+            var respuesta = await telefonoService.InsertarTelefono(telefono, token);
+            if (!respuesta)
+            {
+                await sweetAlertService.FireAsync("Error", "No se pudo guardar el teléfono", SweetAlertIcon.Error);
+                return;
+            }
+            navigationManager.NavigateTo("/telefonos", forceLoad: true);
+        }
+    }
+
+    private async Task CancelarEdicion()
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de cancelar la creación del teléfono? Los cambios no guardados se perderán.",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Sí"
+            });
+
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            navigationManager.NavigateTo("/telefonos", forceLoad: true);
+        }
+    }
+}

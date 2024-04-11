@@ -1,0 +1,115 @@
+﻿@page "/telefonos"
+@using Coling.Shared
+@inject ITelefonoService telefonoService
+@inject IPersonaService personaService
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Listar Teléfonos</h3>
+
+<div class="form-group row">
+    <div class="col-sm-10">
+        <a href="/telefono/crear" class="btn btn-primary m-1">Agregar Nuevo</a>
+    </div>
+</div>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th><strong>Número de Teléfono</strong></th>
+                <th><strong>Nombre de la Persona</strong></th>
+                <th><strong>Estado</strong></th>
+                <th><strong>Acciones</strong></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var telefono in TelefonosLista)
+            {
+                <tr>
+                    <td>@telefono.NroTelefono</td>
+                    <td>@ObtenerNombrePersona(telefono.IdPersona)</td>
+                    <td>@telefono.Estado</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="()=>EditarTelefono(telefono.Id)">Editar</button>
+                        <button class="btn btn-danger" @onclick="() => ConfirmarBorrarTelefono(telefono.Id)">Borrar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    public List<Telefono> TelefonosLista { get; set; } = new List<Telefono>();
+    public Dictionary<int, string> NombresPersonas { get; set; } = new Dictionary<int, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+
+        // Obtener la lista de telefonos
+        TelefonosLista = await telefonoService.ListaTelefonos(token);
+
+        // Obtener los nombres de las personas asociadas a los telefonos
+        foreach (var telefono in TelefonosLista)
+        {
+            // Verificar si la clave ya existe en el diccionario
+            if (!NombresPersonas.ContainsKey(telefono.IdPersona))
+            {
+                var persona = await personaService.ObtenerPersonaPorId(telefono.IdPersona, token);
+                NombresPersonas.Add(telefono.IdPersona, persona != null ? $"{persona.Nombre} {persona.Apellidos}" : "Desconocido");
+            }
+        }
+    }
+
+    private void EditarTelefono(int id)
+    {
+        navigationManager.NavigateTo($"/telefono/editar/{id}");
+    }
+
+    private async Task ConfirmarBorrarTelefono(int id)
+    {
+        var resultado = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "¿Estás seguro de borrar este teléfono?",
+                Text = "Esta acción no se puede deshacer",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Sí, borrar",
+                CancelButtonText = "Cancelar"
+            });
+
+        if (resultado.IsConfirmed)
+        {
+            await BorrarTelefono(id);
+        }
+    }
+
+    private async Task BorrarTelefono(int id)
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        var exito = await telefonoService.BorrarTelefono(id, token);
+
+        if (exito)
+        {
+            navigationManager.NavigateTo("/telefonos", forceLoad: true);
+        }
+        else
+        {
+            await sweetAlertService.FireAsync("Error", "No se pudo borrar el teléfono", SweetAlertIcon.Error);
+        }
+    }
+
+    private string ObtenerNombrePersona(int idPersona)
+    {
+        if (NombresPersonas.ContainsKey(idPersona))
+        {
+            return NombresPersonas[idPersona];
+        }
+        else
+        {
+            return "Desconocido";
+        }
+    }
+}

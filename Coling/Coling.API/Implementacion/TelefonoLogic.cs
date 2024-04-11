@@ -78,7 +78,18 @@ namespace Coling.API.Afiliados.Implementacion
                 return new List<Telefono>();
             }
         }
-
+        public async Task<List<Telefono>> ListarTelefonos()
+        {
+            try
+            {
+                var lista = await contexto.Telefonos.ToListAsync();
+                return lista;
+            }
+            catch (Exception)
+            {
+                return new List<Telefono>();
+            }
+        }
         public async Task<bool> ModificarTelefono(Telefono telefono)
         {
             try

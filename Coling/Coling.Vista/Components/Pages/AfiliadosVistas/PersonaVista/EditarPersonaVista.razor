@@ -1,0 +1,115 @@
+﻿@page "/persona/editar/{id}"
+@using Coling.Shared
+@inject IPersonaService servicioPersona
+@inject NavigationManager nav
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Persona</h3>
+
+@if (persona != null)
+{
+    <EditForm EditContext="contextoEdicion">
+        <DataAnnotationsValidator />
+        <div class="mb-3">
+            <label>Nombre:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@persona.Nombre" />
+                <ValidationMessage For="@(() => persona.Nombre)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Apellidos:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@persona.Apellidos" />
+                <ValidationMessage For="@(() => persona.Apellidos)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Fecha de Nacimiento:</label>
+            <div>
+                <InputDate class="form-control" @bind-Value="@persona.FechaNacimiento" />
+                <ValidationMessage For="@(() => persona.FechaNacimiento)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Foto:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@persona.Foto" />
+                <ValidationMessage For="@(() => persona.Foto)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Estado:</label>
+            <div>
+                <select class="form-control" @bind="@persona.Estado">
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" @onclick="Editar">Editar</button>
+        <button class="btn btn-primary" @onclick="CancelarEdicion">Cancelar</button>
+    </EditForm>
+}
+else
+{
+    <p>Cargando...</p>
+}
+
+@code {
+    private EditContext contextoEdicion;
+    private Persona persona;
+
+    [Parameter]
+    public string id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (int.TryParse(id, out int parsedId))
+        {
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+            // Obtener datos de la persona a editar
+            persona = await servicioPersona.ObtenerPersonaPorId(parsedId, token);
+            if (persona != null)
+            {
+                contextoEdicion = new EditContext(persona);
+            }
+        }
+    }
+
+    private async Task Editar()
+    {
+        if (contextoEdicion.Validate())
+        {
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+            bool exito = await servicioPersona.EditarPersona(persona, token);
+
+            if (exito)
+            {
+                nav.NavigateTo("/personas");
+            }
+            else
+            {
+                await sweetAlertService.FireAsync("Error", "No se pudo editar la persona", SweetAlertIcon.Error);
+            }
+        }
+    }
+
+    private async Task CancelarEdicion()
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de cancelar la edición? Los cambios no guardados se perderán.",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Sí"
+            });
+
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            nav.NavigateTo("/personas", forceLoad: true);
+        }
+    }
+}
