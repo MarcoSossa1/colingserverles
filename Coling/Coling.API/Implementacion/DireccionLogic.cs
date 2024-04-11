@@ -77,7 +77,18 @@ namespace Coling.API.Afiliados.Implementacion
                 return new List<Direccion>();
             }
         }
-
+        public async Task<List<Direccion>> ListarDirecciones()
+        {
+            try
+            {
+                var lista = await contexto.Direcciones.ToListAsync();
+                return lista;
+            }
+            catch (Exception)
+            {
+                return new List<Direccion>();
+            }
+        }
         public async Task<bool> ModificarDireccion(Direccion direccion)
         {
             try

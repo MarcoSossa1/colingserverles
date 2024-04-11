@@ -15,7 +15,7 @@ namespace Coling.Shared
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
-        public int IdInstitucion { get; set; }
+        public int? IdInstitucion { get; set; }
         public DateTime FechaOferta { get; set; }
         public DateTime FechaLimite { get; set; }
         public string? Descripcion { get; set; }

@@ -14,5 +14,6 @@ namespace Coling.API.Afiliados.Contratos
         Task<bool> EliminarDireccion(int id);
         Task<List<Direccion>> ListarDireccionesPorPersona(int idPersona);
         Task<Direccion> ObtenerDireccionById(int id);
+        Task<List<Direccion>> ListarDirecciones();
     }
 }

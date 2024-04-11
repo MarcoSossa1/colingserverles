@@ -1,0 +1,111 @@
+﻿@page "/afiliado-idioma/editar/{id}"
+@using Coling.Shared
+@inject IAfiliadoIdiomaService afiliadoIdiomaService
+@inject IAfiliadoService afiliadoService
+@inject IIdiomaService idiomaService
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Afiliado Idioma</h3>
+
+@if (afiliadoIdioma != null)
+{
+    <EditForm EditContext="contextoEdicion">
+        <DataAnnotationsValidator />
+        <div class="mb-3">
+            <label>Afiliado:</label>
+            <div>
+                <InputSelect class="form-control" @bind-Value="@afiliadoIdioma.IdAfiliado">
+                    @foreach (var afiliado in Afiliados.Where(a => a.Estado == "Activo"))
+                    {
+                        <option value="@afiliado.Id">@afiliado.CodigoAfiliado</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => afiliadoIdioma.IdAfiliado)" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label>Idioma:</label>
+            <div>
+                <InputSelect class="form-control" @bind-Value="@afiliadoIdioma.IdIdioma">
+                    @foreach (var idioma in Idiomas.Where(I => I.Estado == "Activo"))
+                    {
+                        <option value="@idioma.Id">@idioma.NombreIdioma</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => afiliadoIdioma.IdIdioma)" />
+            </div>
+        </div>
+        <button class="btn btn-primary" @onclick="EditarAfiliadoIdioma">Guardar</button>
+        <button class="btn btn-primary" @onclick="CancelarEdicion">Cancelar</button>
+    </EditForm>
+}
+else
+{
+    <p>Cargando...</p>
+}
+
+@code {
+    private EditContext contextoEdicion;
+    private AfiliadoIdioma afiliadoIdioma;
+
+    [Parameter]
+    public string id { get; set; }
+    private List<Afiliado> Afiliados = new List<Afiliado>();
+    private List<Idioma> Idiomas = new List<Idioma>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+
+        if (int.TryParse(id, out int parsedId))
+        {
+            // Obtener el AfiliadoIdioma por su ID
+            afiliadoIdioma = await afiliadoIdiomaService.ObtenerAfiliadoIdiomaPorId(parsedId, token);
+            if (afiliadoIdioma != null)
+            {
+                contextoEdicion = new EditContext(afiliadoIdioma);
+            }
+        }
+
+        // Obtener la lista de afiliados
+        Afiliados = await afiliadoService.ListaAfiliados(token);
+
+        // Obtener la lista de idiomas
+        Idiomas = await idiomaService.ListaIdiomas(token);
+    }
+
+    private async Task EditarAfiliadoIdioma()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+
+        var exito = await afiliadoIdiomaService.EditarAfiliadoIdioma(afiliadoIdioma, token);
+
+        if (exito)
+        {
+            navigationManager.NavigateTo("/afiliado-idiomas");
+        }
+        else
+        {
+            await sweetAlertService.FireAsync("Error", "No se pudo editar el afiliado idioma", SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CancelarEdicion()
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de cancelar la edición del afiliado idioma? Los cambios no guardados se perderán.",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Sí"
+            });
+
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            navigationManager.NavigateTo("/afiliado-idiomas");
+        }
+    }
+}

@@ -1,0 +1,102 @@
+﻿@page "/ofertas-laborales"
+@using Coling.Shared
+@inject IOfertaLaboralService ofertaLaboralService
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Listar Ofertas Laborales</h3>
+
+<div class="form-group row">
+    <div class="col-sm-10">
+        <a href="/oferta-laboral/crear" class="btn btn-primary m-1">Agregar Nuevo</a>
+    </div>
+</div>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th><strong>Institución</strong></th>
+                <th><strong>Fecha de Oferta</strong></th>
+                <th><strong>Fecha Límite</strong></th>
+                <th><strong>Descripción</strong></th>
+                <th><strong>Título de Cargo</strong></th>
+                <th><strong>Tipo de Contrato</strong></th>
+                <th><strong>Tipo de Trabajo</strong></th>
+                <th><strong>Área</strong></th>
+                <th><strong>Características</strong></th>
+                <th><strong>Estado</strong></th>
+                <th><strong>Acciones</strong></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var oferta in OfertasLaboralesLista)
+            {
+                <tr>
+                    <td>@oferta.IdInstitucion</td>
+                    <td>@oferta.FechaOferta.ToShortDateString()</td>
+                    <td>@oferta.FechaLimite.ToShortDateString()</td>
+                    <td>@oferta.Descripcion</td>
+                    <td>@oferta.TituloCargo</td>
+                    <td>@oferta.TipoContrato</td>
+                    <td>@oferta.TipoTrabajo</td>
+                    <td>@oferta.Area</td>
+                    <td>@oferta.Caracteristicas</td>
+                    <td>@oferta.Estado</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="()=>EditarOferta(oferta.Id)">Editar</button>
+                        <button class="btn btn-danger" @onclick="() => ConfirmarBorrarOferta(oferta.Id)">Borrar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    public List<OfertaLaboral> OfertasLaboralesLista { get; set; } = new List<OfertaLaboral>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        OfertasLaboralesLista = await ofertaLaboralService.ListaOfertasLaborales(token);
+    }
+
+    private void EditarOferta(string id)
+    {
+        navigationManager.NavigateTo($"/oferta-laboral/editar/{id}");
+    }
+
+    private async Task ConfirmarBorrarOferta(string id)
+    {
+        var resultado = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "¿Estás seguro de borrar esta oferta laboral?",
+                Text = "Esta acción no se puede deshacer",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Sí, borrar",
+                CancelButtonText = "Cancelar"
+            });
+
+        if (resultado.IsConfirmed)
+        {
+            await BorrarOferta(id);
+        }
+    }
+
+    private async Task BorrarOferta(string id)
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        var exito = await ofertaLaboralService.BorrarOfertaLaboral(id, token);
+
+        if (exito)
+        {
+            navigationManager.NavigateTo("/ofertas-laborales", forceLoad: true);
+        }
+        else
+        {
+            await sweetAlertService.FireAsync("Error", "No se pudo borrar la oferta laboral", SweetAlertIcon.Error);
+        }
+    }
+}

@@ -6,22 +6,23 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Coling.Vista.Servicios.Afiliados
+
+namespace Coling.Vista.Servicios.BolsaTrabajo
 {
-    public class PersonaService : IPersonaService
+    public class SolicitudService : ISolicitudService
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "http://localhost:7065";
+        private const string BaseUrl = "http://localhost:7019";
 
-        public PersonaService(HttpClient httpClient)
+        public SolicitudService(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _httpClient.BaseAddress = new Uri(BaseUrl);
         }
 
-        public async Task<bool> BorrarPersona(int id, string token)
+        public async Task<bool> BorrarSolicitud(string id, string token)
         {
-            var endPoint = $"api/eliminarpersona/{id}";
+            var endPoint = $"api/EliminarSolicitud/{id}";
 
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
@@ -29,51 +30,51 @@ namespace Coling.Vista.Servicios.Afiliados
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> EditarPersona(Persona persona, string token)
+        public async Task<bool> EditarSolicitud(Solicitud solicitud, string token)
         {
-            var endPoint = $"api/modificarpersona/{persona.Id}";
+            var endPoint = $"api/ModificarSolicitud/{solicitud.Id}";
 
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-            var jsonContent = new StringContent(JsonConvert.SerializeObject(persona), Encoding.UTF8, "application/json");
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(solicitud), Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PutAsync(endPoint, jsonContent);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> InsertarPersona(Persona persona, string token)
+        public async Task<bool> InsertarSolicitud(Solicitud solicitud, string token)
         {
-            var endPoint = "api/insertarpersona";
+            var endPoint = "api/InsertarSolicitud";
 
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-            var jsonContent = new StringContent(JsonConvert.SerializeObject(persona), Encoding.UTF8, "application/json");
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(solicitud), Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(endPoint, jsonContent);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<List<Persona>> ListaPersonas(string token)
+        public async Task<List<Solicitud>> ListaSolicitudes(string token)
         {
-            var endPoint = "api/listarpersonas";
+            var endPoint = "api/ListarSolicitudes";
 
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             var response = await _httpClient.GetAsync(endPoint);
-            List<Persona> result = new List<Persona>();
+            List<Solicitud> result = new List<Solicitud>();
 
             if (response.IsSuccessStatusCode)
             {
                 string responseBody = await response.Content.ReadAsStringAsync();
-                result = JsonConvert.DeserializeObject<List<Persona>>(responseBody);
+                result = JsonConvert.DeserializeObject<List<Solicitud>>(responseBody);
             }
 
             return result;
         }
 
-        public async Task<Persona> ObtenerPersonaPorId(int id, string token)
+        public async Task<Solicitud> ObtenerSolicitudPorId(string id, string token)
         {
-            var endPoint = $"api/obtenerpersonabyid/{id}";
+            var endPoint = $"api/ObtenerSolicitudById/{id}";
 
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
@@ -82,7 +83,7 @@ namespace Coling.Vista.Servicios.Afiliados
             if (response.IsSuccessStatusCode)
             {
                 string responseBody = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<Persona>(responseBody);
+                return JsonConvert.DeserializeObject<Solicitud>(responseBody);
             }
 
             return null;

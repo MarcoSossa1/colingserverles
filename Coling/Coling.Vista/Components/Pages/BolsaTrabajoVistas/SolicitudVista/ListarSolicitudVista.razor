@@ -1,0 +1,96 @@
+﻿@page "/solicitudes"
+@using Coling.Shared
+@inject ISolicitudService solicitudService
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Listar Solicitudes</h3>
+
+<div class="form-group row">
+    <div class="col-sm-10">
+        <a href="/solicitud/crear" class="btn btn-primary m-1">Agregar Nuevo</a>
+    </div>
+</div>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th><strong>Id Afiliado</strong></th>
+                <th><strong>Id Oferta</strong></th>
+                <th><strong>Nombre</strong></th>
+                <th><strong>Fecha de Postulación</strong></th>
+                <th><strong>Pretensión Salarial</strong></th>
+                <th><strong>Acerca de</strong></th>
+                <th><strong>Estado</strong></th>
+                <th><strong>Acciones</strong></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var solicitud in SolicitudesLista)
+            {
+                <tr>
+                    <td>@solicitud.IdAfiliado</td>
+                    <td>@solicitud.IdOferta</td>
+                    <td>@solicitud.Nombre</td>
+                    <td>@solicitud.FechaPostulacion</td>
+                    <td>@solicitud.PretencionSalarial</td>
+                    <td>@solicitud.Acercade</td>
+                    <td>@solicitud.Estado</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="()=>EditarSolicitud(solicitud.Id)">Editar</button>
+                        <button class="btn btn-danger" @onclick="() => ConfirmarBorrarSolicitud(solicitud.Id)">Borrar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    public List<Solicitud> SolicitudesLista { get; set; } = new List<Solicitud>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        SolicitudesLista = await solicitudService.ListaSolicitudes(token);
+    }
+
+    private void EditarSolicitud(string id)
+    {
+        navigationManager.NavigateTo($"/solicitud/editar/{id}");
+    }
+
+    private async Task ConfirmarBorrarSolicitud(string id)
+    {
+        var resultado = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "¿Estás seguro de borrar esta solicitud?",
+                Text = "Esta acción no se puede deshacer",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Sí, borrar",
+                CancelButtonText = "Cancelar"
+            });
+
+        if (resultado.IsConfirmed)
+        {
+            await BorrarSolicitud(id);
+        }
+    }
+
+    private async Task BorrarSolicitud(string id)
+    {
+        string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoibWFyY28iLCJyb2wiOiJBZG1pbiIsImVzdGFkbyI6IkFjdGl2byIsImV4cCI6MTcxNDY5ODU1N30.MXG3tCUNsze-FNZo_E-2D7SJpOLPCclRbNvnbU1P4iY";
+        var exito = await solicitudService.BorrarSolicitud(id, token);
+
+        if (exito)
+        {
+            navigationManager.NavigateTo("/solicitudes", forceLoad: true);
+        }
+        else
+        {
+            await sweetAlertService.FireAsync("Error", "No se pudo borrar la solicitud", SweetAlertIcon.Error);
+        }
+    }
+}

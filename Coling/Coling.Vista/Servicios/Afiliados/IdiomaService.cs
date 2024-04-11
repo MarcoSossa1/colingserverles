@@ -8,20 +8,20 @@ using System.Threading.Tasks;
 
 namespace Coling.Vista.Servicios.Afiliados
 {
-    public class PersonaService : IPersonaService
+    public class IdiomaService : IIdiomaService
     {
         private readonly HttpClient _httpClient;
         private const string BaseUrl = "http://localhost:7065";
 
-        public PersonaService(HttpClient httpClient)
+        public IdiomaService(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _httpClient.BaseAddress = new Uri(BaseUrl);
         }
 
-        public async Task<bool> BorrarPersona(int id, string token)
+        public async Task<bool> BorrarIdioma(int id, string token)
         {
-            var endPoint = $"api/eliminarpersona/{id}";
+            var endPoint = $"api/eliminaridioma/{id}";
 
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
@@ -29,51 +29,51 @@ namespace Coling.Vista.Servicios.Afiliados
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> EditarPersona(Persona persona, string token)
+        public async Task<bool> EditarIdioma(Idioma idioma, string token)
         {
-            var endPoint = $"api/modificarpersona/{persona.Id}";
+            var endPoint = $"api/modificaridioma/{idioma.Id}";
 
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-            var jsonContent = new StringContent(JsonConvert.SerializeObject(persona), Encoding.UTF8, "application/json");
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(idioma), Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PutAsync(endPoint, jsonContent);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> InsertarPersona(Persona persona, string token)
+        public async Task<bool> InsertarIdioma(Idioma idioma, string token)
         {
-            var endPoint = "api/insertarpersona";
+            var endPoint = "api/insertaridioma";
 
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-            var jsonContent = new StringContent(JsonConvert.SerializeObject(persona), Encoding.UTF8, "application/json");
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(idioma), Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(endPoint, jsonContent);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<List<Persona>> ListaPersonas(string token)
+        public async Task<List<Idioma>> ListaIdiomas(string token)
         {
-            var endPoint = "api/listarpersonas";
+            var endPoint = "api/listaridiomas";
 
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             var response = await _httpClient.GetAsync(endPoint);
-            List<Persona> result = new List<Persona>();
+            List<Idioma> result = new List<Idioma>();
 
             if (response.IsSuccessStatusCode)
             {
                 string responseBody = await response.Content.ReadAsStringAsync();
-                result = JsonConvert.DeserializeObject<List<Persona>>(responseBody);
+                result = JsonConvert.DeserializeObject<List<Idioma>>(responseBody);
             }
 
             return result;
         }
 
-        public async Task<Persona> ObtenerPersonaPorId(int id, string token)
+        public async Task<Idioma> ObtenerIdiomaPorId(int id, string token)
         {
-            var endPoint = $"api/obtenerpersonabyid/{id}";
+            var endPoint = $"api/obteneridiomabyid/{id}";
 
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
@@ -82,7 +82,7 @@ namespace Coling.Vista.Servicios.Afiliados
             if (response.IsSuccessStatusCode)
             {
                 string responseBody = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<Persona>(responseBody);
+                return JsonConvert.DeserializeObject<Idioma>(responseBody);
             }
 
             return null;

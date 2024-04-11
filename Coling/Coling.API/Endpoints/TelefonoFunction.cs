@@ -50,6 +50,27 @@ namespace Coling.API.Afiliados.Endpoints
                 return error;
             }
         }
+        [Function("ListarTelefonos")]
+        [ColingAuthorize(AplicacionRoles.Admin + "," + AplicacionRoles.Secretaria + "," + AplicacionRoles.Afiliado)]
+        [OpenApiOperation("ListarTelefonos", "ListarTelefonos", Description = "Lista todos los teléfonos.")]
+        public async Task<HttpResponseData> ListarTelefonos(
+    [HttpTrigger(AuthorizationLevel.Function, "get", Route = "listartelefonos")] HttpRequestData req)
+        {
+            _logger.LogInformation("Ejecutando azure function para listar todos los teléfonos.");
+            try
+            {
+                var listaTelefonos = await telefonoLogic.ListarTelefonos();
+                var respuesta = req.CreateResponse(HttpStatusCode.OK);
+                await respuesta.WriteAsJsonAsync(listaTelefonos);
+                return respuesta;
+            }
+            catch (Exception e)
+            {
+                var error = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await error.WriteAsJsonAsync(e.Message);
+                return error;
+            }
+        }
 
         [Function("InsertarTelefono")]
         [ColingAuthorize(AplicacionRoles.Admin)]
